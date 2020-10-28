@@ -1,0 +1,14 @@
+{
+    "manifest_version": 2,
+    "name": "TODO Checklist",
+    "description": "TODO Checklist",
+    "version": "1.0.0",
+    "icons": {
+        "128": "todo_icon_128.png"
+    },
+    "browser_action": {
+        "default_icon": "todo_icon.png",
+        "default_popup": "index.html"
+    },
+    "permissions": ["activeTab"]
+}
