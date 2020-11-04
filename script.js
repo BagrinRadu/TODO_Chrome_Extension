@@ -1,55 +1,103 @@
-let taskContainer = document.getElementById("task-container");
-let addTaskBtn = document.getElementById("add-task-btn");
+// @const Add button element
+const addBtn = document.getElementById("add-btn");
+// The unordered list containing the tasks
+let myNodelist = document.getElementById("myUL");
+// Saved tasks
+let savedItems = localStorage.getItem('todo-tasks') ? localStorage.getItem('todo-tasks').split(",") : [];
 
-addTaskBtn.addEventListener("click", () => {
+if (savedItems.length > 0) {
+    for (let i = 0; i < savedItems.length; i++) {
 
-    let id = taskContainer.childElementCount + 1;
-    let task = addTask("Check me out ", id);
-    document.getElementById("task-container").appendChild(task);
-});
-
-
-function deleteTask() {
-
-    let btnId = this.getAttribute("id");
-    let liItemId = "li-" + btnId;
-    let liItem = document.getElementById(liItemId);
-
-    taskContainer.removeChild(liItem);
-
+        if (savedItems[i]) {
+            let span = document.createElement("SPAN");
+            let txt = document.createTextNode("\u00D7");
+            span.className = "close";
+            span.appendChild(txt);
+            let li = document.createElement("LI");
+            let taskTxt = document.createTextNode(savedItems[i]);
+            li.appendChild(taskTxt);
+            li.appendChild(span);
+        
+            myNodelist.appendChild(li);
+        }
+    }
 }
 
-function addTask(taskText, id) {
+// Click on a close button to hide the current list item
+let close = document.getElementsByClassName("close");
+for (let i = 0; i < close.length; i++) {
+    close[i].onclick = function () {
+        let div = this.parentElement;
+        div.style.display = "none";
+    }
 
-    let textNode = document.createTextNode(taskText);
+    for (let i = 0; i < close.length; i++) {
+        close[i].onclick = function () {
+            let div = this.parentElement;
+            div.style.display = "none";
 
-    // input type checkbox: <input type="checkbox" class="check-input" id="{id}">
-    let checkbox = document.createElement("INPUT");
-    checkbox.setAttribute("id", "checkbox-" + id);
-    checkbox.setAttribute("type", "checkbox");
-    checkbox.setAttribute("class", "form-check-input li-checkbox");
+            let delimiter = String.fromCharCode(215);
+            let taskText = div.innerText.split(delimiter, 1)[0];
+            deleteTextFromLocalStorage(taskText);
+        }
+    }
+}
 
-    // label: <label class="check-label" for="{id}">{taskText}</label>
-    let label = document.createElement("LABEL");
-    label.setAttribute("class", "form-check-label li-label");
-    label.setAttribute("for", "checkbox-" + id);
-    label.appendChild(textNode);
+// Add a "checked" symbol when clicking on a list item
+let list = document.querySelector('ul');
+list.addEventListener('click', function (ev) {
+    if (ev.target.tagName === 'LI') {
+        ev.target.classList.toggle('checked');
+    }
+}, false);
 
-    // i: <i id="{id}" class="material-icons">delete</i>
-    let deleteBtn = document.createElement("BUTTON");
-    deleteBtn.setAttribute("id", id);
-    deleteBtn.setAttribute("type", "button");
-    deleteBtn.setAttribute("class", "btn-delete");
-    deleteBtn.innerHTML = "<i class='material-icons'>delete</i>";
-    deleteBtn.addEventListener("click", deleteTask);
+// Create a new list item when clicking on the "Add" button
+function newElement() {
+    let li = document.createElement("li");
+    let inputValue = document.getElementById("myInput").value;
+    let t = document.createTextNode(inputValue);
+    li.appendChild(t);
+    if (inputValue === '') {
+        alert("You must write something!");
+    } else {
+        document.getElementById("myUL").appendChild(li);
 
-    // li: <li class="list-group-item"> {checkbox}{label} </li>
-    let li = document.createElement("LI");
-    li.setAttribute("id", "li-" + id);
-    li.setAttribute("class", "list-group-item");
-    li.appendChild(checkbox);
-    li.appendChild(label);
-    li.appendChild(deleteBtn);
+        // Save item in local storage too
+        savedItems.push(document.getElementById("myInput").value);
+        localStorage.setItem("todo-tasks", savedItems);
+    }
+    
+    document.getElementById("myInput").value = "";
 
-    return li;
+    let span = document.createElement("SPAN");
+    let txt = document.createTextNode("\u00D7");
+    span.className = "close";
+    span.addEventListener("click", function () {
+        let div = this.parentElement;
+        div.style.display = "none";
+
+        let delimiter = String.fromCharCode(215);
+        let taskText = div.innerText.split(delimiter, 1)[0];
+        deleteTextFromLocalStorage(taskText);
+    });
+    span.appendChild(txt);
+    li.appendChild(span);
+}
+
+// Add event listener to add button
+addBtn.addEventListener("click", newElement);
+
+function deleteTextFromLocalStorage(text) {
+
+    let localStorageItems = localStorage.getItem("todo-tasks").split(",");
+    let newLocalStorageItems = [];
+
+    localStorageItems.forEach((savedTaskText) => {
+
+        if (savedTaskText != text) {
+            newLocalStorageItems.push(savedTaskText);
+        }
+    });
+
+    localStorage.setItem("todo-tasks", newLocalStorageItems);
 }
